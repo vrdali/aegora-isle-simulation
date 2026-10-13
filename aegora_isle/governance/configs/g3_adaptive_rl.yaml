@@ -1,0 +1,37 @@
+# G3 — adaptive RL governance (SAC). See G3_PLAN.md.
+#
+# Schema locked ahead of implementation. `aegora_isle/governance/adaptive_rl.py`
+# (AdaptiveRLGovernor) lands in M2 Sprint 2.5; until then, GovernanceModule
+# raises NotImplementedError for regime: G3. Loading this file to inspect
+# the schema works today; constructing a GovernanceModule from it does not.
+regime: G3
+
+# Composite reward weights (spec §2.2.2). Must sum to 1.0.
+reward_weights:
+  equality: 0.40        # (1 - Gini); higher = more equal
+  sustainability: 0.35  # f(stock, depletion_rate); higher = healthier pool
+  productivity: 0.25    # GDP indexed to t=100, log-scaled
+
+# Reward-component normalisation strategy.
+reward_normalisation: running   # "running" mean/std (Welford) | "none"
+reward_clip: 5.0                # clip normalised components to [-clip, +clip]
+
+# Action interpretation: Governor's Box(0,1) outputs map linearly into these.
+extraction_cap_range: [0.5, 5.0]        # raw units per Extractor per step
+redistribution_rate_range: [0.0, 0.3]
+sanction_default_magnitude: -2.0
+
+# SAC hyperparameters (SB3 defaults, adjusted for spec §6.3 convergence).
+sac:
+  learning_rate: 3.0e-4
+  buffer_size: 100000
+  batch_size: 256
+  gamma: 0.99
+  tau: 0.005
+  ent_coef: auto
+  train_freq: [4, step]
+  gradient_steps: 1
+  learning_starts: 1000
+  target_update_interval: 1
+  policy_kwargs:
+    net_arch: [256, 256]

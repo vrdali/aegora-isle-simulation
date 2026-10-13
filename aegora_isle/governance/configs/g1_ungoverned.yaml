@@ -1,0 +1,6 @@
+# G1 — ungoverned baseline. See G1_PLAN.md.
+#
+# G1 takes no parameters. The file exists so the dispatcher has something
+# to load and so every run's `governance_condition` CSV column can read
+# "G1" consistently with G2/G3, even though no intervention logic runs.
+regime: G1

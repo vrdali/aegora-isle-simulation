@@ -1,0 +1,61 @@
+[project]
+name = "aegora_isle"
+version = "0.1.0"
+description = "Multi-agent RL simulation of synthetic economies under three governance regimes"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+license = { text = "MIT" }
+authors = [{ name = "Asharib" }]
+
+dependencies = [
+    "pettingzoo>=1.24.0",
+    "stable-baselines3>=2.0.0",
+    "gymnasium>=0.29.0",
+    "numpy>=1.24.0",
+    "pyyaml>=6.0",
+    "matplotlib>=3.7.0",
+    "pandas>=2.3.3",
+    "joblib>=1.5.3",
+    "tqdm>=4.69.0",
+    # Spec §4.1 pinned minimums -- required by analysis/statistical_analysis.py
+    # (spec §8) and by AC-13, which requires requirements.txt to pin all deps.
+    "scipy>=1.11.0",
+    "pingouin>=0.5.4",
+    "lifelines>=0.27.0",
+    "statsmodels>=0.14.0",
+    "seaborn>=0.12.0",
+    "reportlab>=4.0.0",
+    "streamlit>=1.30.0",
+    "psutil>=5.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aegora_isle"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+# Pinned explicitly rather than left to ruff's defaults. The dev extra
+# specifies `ruff>=0.1.0`, so a fresh install picks up whatever is current,
+# and ruff's default rule set has widened across releases -- the same
+# unchanged codebase went from clean to several hundred findings purely on a
+# version bump. These are the rules the project has actually been enforcing;
+# stating them keeps `ruff check` reproducible for anyone who clones it.
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]

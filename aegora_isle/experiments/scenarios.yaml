@@ -1,0 +1,56 @@
+# Scenarios A/B/C/D (spec §2.3, MASTER_PLAN.md Sprint 3.2 starting values,
+# C/D recalibrated pre-Sprint-3.5 -- see DECISIONS.md "Scenario C/D
+# resource-pool recalibration -- client-directed, pilot-validated").
+# A and B: high abundance.  C and D: low abundance.
+# A and C: low event frequency.  B and D: high event frequency.
+# event_rate is events per 100 timesteps (per ResourcePool.event_rate semantics).
+#
+# base_prices.raw (post-M2 fix, see DECISIONS.md "Producer raw-material
+# acquisition — resolved"): scarcity-adjusted price Producers pay Extractors
+# for raw material, via the same Market._scarcity_multiplier() formula as
+# food/tool. Distinct from AgentBase.wealth()'s flat internal raw price of
+# 1.0 (unchanged) — see DECISIONS.md for why the two coexist.
+
+A:
+  initial_stock: 10000.0
+  regeneration_rate: 0.05
+  event_rate: 0.5
+  critical_min: 100.0
+  scarcity_alpha: 0.5
+  base_prices:
+    food: 10.0
+    tool: 20.0
+    raw: 1.0
+
+B:
+  initial_stock: 10000.0
+  regeneration_rate: 0.05
+  event_rate: 3.0
+  critical_min: 100.0
+  scarcity_alpha: 0.5
+  base_prices:
+    food: 10.0
+    tool: 20.0
+    raw: 1.0
+
+C:
+  initial_stock: 8000.0
+  regeneration_rate: 0.05
+  event_rate: 0.5
+  critical_min: 50.0
+  scarcity_alpha: 0.5
+  base_prices:
+    food: 10.0
+    tool: 20.0
+    raw: 1.0
+
+D:
+  initial_stock: 8000.0
+  regeneration_rate: 0.05
+  event_rate: 3.0
+  critical_min: 50.0
+  scarcity_alpha: 0.5
+  base_prices:
+    food: 10.0
+    tool: 20.0
+    raw: 1.0

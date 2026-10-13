@@ -1,0 +1,13 @@
+governance,scenario,total_replications,total_attempts_across_cell,total_replacement_attempts_across_cell,max_attempts_for_a_single_replication,mean_attempts_per_replication,cap_exceeded_kept_count
+G1,A,30,30,0,1,1.0,0
+G1,B,30,30,0,1,1.0,0
+G1,C,30,30,0,1,1.0,0
+G1,D,30,30,0,1,1.0,0
+G2,A,30,30,0,1,1.0,0
+G2,B,30,30,0,1,1.0,0
+G2,C,30,30,0,1,1.0,0
+G2,D,30,30,0,1,1.0,0
+G3,A,30,30,0,1,1.0,0
+G3,B,30,30,0,1,1.0,0
+G3,C,30,30,0,1,1.0,0
+G3,D,30,30,0,1,1.0,0

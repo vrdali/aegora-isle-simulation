@@ -1,0 +1,20 @@
+# G2 — rule-based static governance. See G2_PLAN.md.
+#
+# Starting defaults per G2_PLAN.md — NOT yet tuned. Final values are set
+# during the M3 Sprint 3.3 pilot run against AC08 (G1 Gini > G2 Gini >
+# G3 Gini in Scenario A). Any change to these values must be logged in
+# DECISIONS.md with the reasoning.
+regime: G2
+
+# Extractor caps — max raw units a single Extractor may pull per step.
+# MAX_EXTRACT_AMOUNT in aegora_env.py is 5.0, so this caps free-market
+# extraction at 60%.
+extraction_cap: 3.0
+
+# Sanctions for cap violations.
+sanction_probability: 0.85   # P(sanction | attempted_amount > extraction_cap)
+sanction_magnitude: -2.0     # added to reward when a sanction fires
+
+# Scheduled redistribution: Producer + Trader cash -> Extractors.
+redistribution_period: 100   # apply every N steps
+redistribution_rate: 0.10    # fraction of (Producer + Trader) cash redistributed

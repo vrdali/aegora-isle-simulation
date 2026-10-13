@@ -1,0 +1,52 @@
+{
+  "run_id": "G3_B_017",
+  "random_seed": 2117,
+  "governance_condition": "G3",
+  "scenario": "B",
+  "governance_params": {
+    "regime": "G3",
+    "weights": {
+      "equality": 0.4,
+      "sustainability": 0.35,
+      "productivity": 0.25
+    },
+    "current_cap": 2.918918013572693,
+    "current_redist_rate": 0.09921047687530517,
+    "current_sanction_probability": 0.01252475380897522,
+    "step_count": 10000,
+    "sanction_count": 52812,
+    "redistribution_count": 9414,
+    "model_built": true
+  },
+  "scenario_params": {
+    "initial_stock": 10000.0,
+    "regeneration_rate": 0.05,
+    "event_rate": 3.0,
+    "critical_min": 100.0,
+    "scarcity_alpha": 0.5,
+    "base_prices": {
+      "food": 10.0,
+      "tool": 20.0,
+      "raw": 1.0
+    }
+  },
+  "n_agents": 50,
+  "agent_type_distribution": {
+    "extractor": 0.24,
+    "producer": 0.26,
+    "trader": 0.26,
+    "governor": 0.24
+  },
+  "rl_hyperparams": {
+    "n_steps": 128,
+    "seed": 2117
+  },
+  "collapse_occurred": true,
+  "collapse_timestep": 5,
+  "final_kpi_means": {
+    "gini_raw": 0.697665465709174,
+    "gdp_raw": 347.4719274497858,
+    "resource_stock": 7830.685537848484
+  },
+  "csv_checksum": "53c86ae19d4438eee96f5383d7335d3d96e1af7f834368913cfe37c70b8329e5"
+}
