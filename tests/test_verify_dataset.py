@@ -41,8 +41,8 @@ def ds(tmp_path: Path) -> Path:
         d = tmp_path / "runs" / gov
         d.mkdir(parents=True, exist_ok=True)
         c, j = d / f"{rid}.csv", d / f"{rid}.json"
-        c.write_text("timestep,gini\n25,0.5\n")
-        j.write_text(json.dumps({"run_id": rid, "random_seed": seed}))
+        c.write_text(f"timestep,gini\n25,0.5{seed}\n")
+        j.write_text(json.dumps({"run_id": rid, "random_seed": seed, "scenario_params": {"regeneration_rate": 0.05}}))
         man.append([rid, gov, sc, seed, 50, False, "", f"runs/{gov}/{rid}.csv", c.stat().st_size,
                     1, _sha(c), f"runs/{gov}/{rid}.json", _sha(j)])
     _write_csv(tmp_path / "dataset_manifest.csv",
@@ -60,7 +60,10 @@ def ds(tmp_path: Path) -> Path:
 
 
 def run(ds: Path, capsys, monkeypatch) -> tuple[int, str]:
-    monkeypatch.setattr("sys.argv", ["verify", "--data_dir", str(ds)])
+    mf = ds / "dataset_manifest.csv"
+    anchor = hashlib.sha256(mf.read_bytes()).hexdigest() if mf.exists() else "0" * 64
+    monkeypatch.setattr("sys.argv", ["verify", "--data_dir", str(ds), "--expected_per_cell", "2",
+                                     "--manifest_sha256", anchor])
     code = vd.main()
     return code, capsys.readouterr().out
 

@@ -1,0 +1,12 @@
+fault,detected,exit_code,caught_by
+"Run file internally consistent but wrong (copied from another run, manifest refreshed)",yes,1,"Run identity consistent (manifest, file names, sidecar, CSV contents); No two runs share identical output; Manifest matches externally published hash"
+Batch summary truncated,yes,1,Sidecar seeds agree with attempts_summary.csv; Run coverage matches manifest; Manifest matches externally published hash
+"Run dropped silently (files, manifest, summary; roll-up untouched)",yes,1,Run count per cell matches the pre-specified design; Manifest matches externally published hash
+Run dropped silently (roll-up edited to match),yes,1,Run count per cell matches the pre-specified design; Manifest matches externally published hash
+"CSV value edited, manifest not refreshed",yes,1,Files present and checksums match manifest; Manifest matches externally published hash
+"CSV value edited, manifest refreshed (only detectable with published manifest hash)",yes,1,Manifest matches externally published hash
+"Configuration value changed without recording (sidecar edited, manifest refreshed)",yes,1,Scenario parameters identical across runs of a scenario; Manifest matches externally published hash
+Replacement seed in sidecar differs from the summary,yes,1,"Sidecar seeds agree with attempts_summary.csv; Run identity consistent (manifest, file names, sidecar, CSV contents); Manifest matches externally published hash"
+Two runs share a seed,yes,1,Seeds unique across runs; Sidecar seeds agree with attempts_summary.csv; Manifest matches externally published hash
+attempts_summary.csv deleted,yes,3,Run identifiers unique; Seeds unique across runs; Sidecar seeds agree with attempts_summary.csv; Run coverage matches manifest; Manifest matches externally published hash
+Sidecar run_id and seed copied from another run,yes,1,"Run identity consistent (manifest, file names, sidecar, CSV contents); Manifest matches externally published hash"
