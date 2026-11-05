@@ -191,11 +191,96 @@ def check_provenance(data_dir: Path, manifest_rows) -> list[Result]:
     return out
 
 
+def check_integrity(data_dir: Path, manifest_rows, expected_per_cell) -> list[Result]:
+    """Identity, duplication, configuration and design-completeness checks."""
+    out: list[Result] = []
+    ident, dupes = [], []
+    sidecars: dict[str, dict] = {}
+    for r in manifest_rows:
+        rid = r["run_id"]
+        for key in ("csv_path", "json_path"):
+            stem = Path(r[key]).stem
+            if stem != rid:
+                ident.append(f"{rid}: {key} points at a file named {stem}")
+        jp = data_dir / r["json_path"]
+        try:
+            meta = json.loads(jp.read_text())
+        except (OSError, ValueError):
+            continue
+        sidecars[rid] = meta
+        if meta.get("run_id", rid) != rid:
+            ident.append(f"{rid}: sidecar claims run_id {meta.get('run_id')}")
+        if "random_seed" in meta and str(meta["random_seed"]) != str(r.get("random_seed", meta["random_seed"])):
+            ident.append(f"{rid}: sidecar seed {meta['random_seed']} differs from manifest seed {r['random_seed']}")
+        cp = data_dir / r["csv_path"]
+        try:
+            with cp.open(newline="") as fh:
+                first = next(csv.DictReader(fh), None)
+        except OSError:
+            first = None
+        if first:
+            if "run_id" in first and first["run_id"] != rid:
+                ident.append(f"{rid}: CSV rows carry run_id {first['run_id']}")
+            if "random_seed" in first and str(first["random_seed"]) != str(meta.get("random_seed", first["random_seed"])):
+                ident.append(f"{rid}: CSV rows carry seed {first['random_seed']}, sidecar {meta.get('random_seed')}")
+    out.append(Result("Run identity consistent (manifest, file names, sidecar, CSV contents)",
+                      FAIL if ident else PASS, ident))
+
+    by_hash: dict[str, list[str]] = {}
+    for r in manifest_rows:
+        by_hash.setdefault(r["csv_sha256"], []).append(r["run_id"])
+    dupes = [f"identical CSV content: {', '.join(sorted(v))}" for v in by_hash.values() if len(v) > 1]
+    out.append(Result("No two runs share identical output", FAIL if dupes else PASS, dupes))
+
+    cfg: dict[str, dict[str, set]] = {}
+    seen = 0
+    for r in manifest_rows:
+        params = sidecars.get(r["run_id"], {}).get("scenario_params")
+        if not isinstance(params, dict):
+            continue
+        seen += 1
+        for k, v in params.items():
+            cfg.setdefault(r["scenario"], {}).setdefault(k, set()).add(json.dumps(v, sort_keys=True))
+    name = "Scenario parameters identical across runs of a scenario"
+    if seen == 0:
+        out.append(Result(name, NOT_RUN, ["no sidecar carries scenario_params"]))
+    else:
+        d = [f"scenario {sc}: parameter {k} takes {len(vs)} values ({', '.join(sorted(vs))})"
+             for sc, ks in cfg.items() for k, vs in ks.items() if len(vs) > 1]
+        out.append(Result(name, FAIL if d else PASS, d))
+
+    name = "Run count per cell matches the pre-specified design"
+    counts: dict[tuple, int] = {}
+    for r in manifest_rows:
+        k = (r["governance_condition"], r["scenario"])
+        counts[k] = counts.get(k, 0) + 1
+    if expected_per_cell is None:
+        out.append(Result(name, NOT_RUN, ["no expected count given (use --expected_per_cell)"]))
+    else:
+        d = [f"{k[0]}/{k[1]}: {n} runs, expected {expected_per_cell}"
+             for k, n in sorted(counts.items()) if n != expected_per_cell]
+        out.append(Result(name, FAIL if d else PASS, d))
+    return out
+
+
+def check_anchor(manifest: Path, expected) -> Result:
+    name = "Manifest matches externally published hash"
+    if not expected:
+        return Result(name, NOT_RUN, ["no anchor given (use --manifest_sha256 with the hash from the paper/release)"])
+    got = sha256_of(manifest)
+    return Result(name, PASS if got == expected.lower() else FAIL,
+                  [] if got == expected.lower() else [f"manifest hash {got} != published {expected}"])
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--data_dir", default="data/")
     ap.add_argument("--manifest", default=None,
                     help="Defaults to <data_dir>/dataset_manifest.csv")
+    ap.add_argument("--expected_per_cell", type=int, default=None,
+                    help="Pre-specified replications per governance x scenario cell")
+    ap.add_argument("--manifest_sha256", default=None,
+                    help="Externally published SHA-256 of the manifest (anchor against rewrites)")
     args = ap.parse_args()
 
     data_dir = Path(args.data_dir)
@@ -207,7 +292,9 @@ def main() -> int:
         return 2
 
     print(f"Manifest lists {len(rows)} replications ({len(rows) * 2} files).")
-    results = [check_checksums(data_dir, rows)] + check_provenance(data_dir, rows)
+    results = [check_checksums(data_dir, rows)] + check_provenance(data_dir, rows) \
+        + check_integrity(data_dir, rows, args.expected_per_cell) \
+        + [check_anchor(manifest, args.manifest_sha256)]
 
     print()
     for r in results:
