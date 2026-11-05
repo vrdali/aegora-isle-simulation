@@ -61,6 +61,7 @@ existing YAML configs unmodified.
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import time
 from pathlib import Path
@@ -100,10 +101,14 @@ PPO_N_STEPS: int = 128
 # pilots -- 0 of 28 converged, no improvement at all. Reverted per the
 # test's own pre-stated condition. See DECISIONS.md "PPO_N_STEPS=64 pilot
 # -- no effect, reverted."
-RETRY_SEED_DELTA: int = 1000  # per-round seed offset -- not a convergence
+RETRY_SEED_DELTA: int = 100_000  # per-round seed offset -- not a convergence
 # constant (CLAUDE.md's "never re-tune 0.01/20" rule doesn't apply here),
 # just the replacement-round seed offset. Round k's seed_override is
 # base_seed + (k-1)*RETRY_SEED_DELTA (round 1 uses the base seed as-is).
+# Was 1000 in the v1 batch, which collided with the next governance
+# regime's base seeds (4 of 360 seeds duplicated). 100_000 exceeds the
+# largest base seed, so no retry seed can equal any base seed or another
+# round's seed; tests/test_seed_scheme.py asserts this.
 DEFAULT_ROUND_CAP: int = 10  # safety valve, not a convergence constant --
 # see DECISIONS.md "Single-criterion exclude-and-replace-until-valid --
 # client-directed reversal" for the sizing math (client-confirmed).
@@ -209,6 +214,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--seed_offset", type=int, default=0)
     parser.add_argument("--output_dir", type=str, default="data/")
     parser.add_argument("--n_jobs", type=int, default=1)
+    parser.add_argument("--indicator_scope", choices=["all", "economic", "economic_ex_trader"],
+                        default="all", help="Agents included in population-level indicators.")
+    parser.add_argument("--burn_in", type=int, default=0,
+                        help="Collapse events are ignored up to and including this timestep.")
+    parser.add_argument("--wealth_log_interval", type=int, default=0,
+                        help="If >0, write per-agent wealth every N timesteps.")
     return parser
 
 
@@ -258,6 +269,9 @@ def run_single_cell(
     track_convergence: bool = True,
     seed_override: int | None = None,
     torch_threads: int | None = None,
+    indicator_scope: str = "all",
+    burn_in: int = 0,
+    wealth_log_interval: int = 0,
 ) -> dict[str, Any]:
     """Runs exactly one (governance, scenario, replication) cell end-to-end.
 
@@ -334,6 +348,7 @@ def run_single_cell(
             scenario_params=scenario_params,
             seed=seed,
             max_timesteps=max_timesteps,
+            indicator_scope=indicator_scope,
         )
         env.reset()
         for aid in env.agents:
@@ -353,7 +368,8 @@ def run_single_cell(
             if track_convergence
             else None
         )
-        logger = KPILogger(env, run_id=run_id, scenario=scenario)
+        logger = KPILogger(env, run_id=run_id, scenario=scenario, burn_in=burn_in,
+                           wealth_log_interval=wealth_log_interval)
         # ppo_kwargs={"seed": seed} is required for determinism: SB3's
         # _setup_model() seeds global RNG state (which the policy's weight
         # init draws from) before this loop begins. Without it, identical
@@ -397,6 +413,13 @@ def run_single_cell(
         )
         result["csv_path"] = str(csv_path)
         result["json_path"] = str(csv_path.with_suffix(".json"))
+        # Audit sidecar: indicator scope, burn-in, collapse timing with and
+        # without burn-in, SAC seed. Separate file so the locked JSON schema
+        # is unchanged.
+        audit = {**logger.audit_record(), "run_id": run_id, "random_seed": seed,
+                 "sac_seed": gm.state_dict().get("sac_seed") if hasattr(gm, "state_dict") else None}
+        csv_path.with_name(csv_path.stem + "_audit.json").write_text(json.dumps(audit, indent=2))
+        logger.write_agent_wealth(csv_path.with_name(csv_path.stem + "_wealth.csv"))
 
         if monitor is not None:
             status, non_converged = _classify_convergence(monitor, collector.agent_types)
@@ -758,6 +781,9 @@ def main(argv: list[str] | None = None) -> int:
         output_dir=str(output_dir),
         track_convergence=True,
         torch_threads=1 if args.n_jobs != 1 else None,
+        indicator_scope=args.indicator_scope,
+        burn_in=args.burn_in,
+        wealth_log_interval=args.wealth_log_interval,
     )
 
     print(f"Running {total} replication(s), n_jobs={args.n_jobs}, round cap={DEFAULT_ROUND_CAP}")

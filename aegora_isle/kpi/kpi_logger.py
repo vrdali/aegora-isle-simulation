@@ -231,8 +231,18 @@ class KPILogger:
         subsistence_fraction: float = DEFAULT_SUBSISTENCE_FRACTION,
         bottom_fraction: float = DEFAULT_BOTTOM_FRACTION,
         max_produce_amount: float = DEFAULT_MAX_PRODUCE_AMOUNT,
+        burn_in: int = 0,
+        wealth_log_interval: int = 0,
     ) -> None:
         self.env = env
+        # burn_in: collapse events are not recorded while timestep <= burn_in
+        # (the collapse flag can fire at initialisation, before any trading).
+        # The first event WITHOUT burn-in is kept separately for reporting
+        # both versions (see write_audit).
+        self.burn_in = int(burn_in)
+        self.wealth_log_interval = int(wealth_log_interval)
+        self._agent_wealth_rows: list[dict[str, Any]] = []
+        self._collapsed_at_no_burn_in: int | None = None
         self.run_id = run_id
         self.scenario = scenario
         self.subsistence_fraction = subsistence_fraction
@@ -253,7 +263,17 @@ class KPILogger:
         """
         env = self.env
         prices = {item: env.market.get_price(item) for item in env.market.base_prices}
-        wealths = [agent.wealth(prices) for agent in env._agents_by_id.values()]
+        wealths = (env.indicator_wealths(prices) if hasattr(env, "indicator_wealths")
+                   else [agent.wealth(prices) for agent in env._agents_by_id.values()])
+
+        if self.wealth_log_interval and (env._timestep % self.wealth_log_interval == 0):
+            for aid, agent in env._agents_by_id.items():
+                self._agent_wealth_rows.append({
+                    "timestep": env._timestep, "agent_id": aid,
+                    "agent_type": aid.split("_")[0], "wealth": agent.wealth(prices),
+                    "in_indicator_scope": env._in_indicator_scope(aid)
+                    if hasattr(env, "_in_indicator_scope") else True,
+                })
 
         if self._initial_mean_wealth is None:
             self._initial_mean_wealth = float(np.mean(wealths)) if wealths else 0.0
@@ -268,7 +288,10 @@ class KPILogger:
         )
         # Rising-edge pulse: True only on the timestep collapse is first
         # detected (spec: "True on the timestep... False otherwise").
-        collapse_event = collapsed_now and not self._was_collapsed_last_row
+        raw_event = collapsed_now and not self._was_collapsed_last_row
+        if raw_event and self._collapsed_at_no_burn_in is None:
+            self._collapsed_at_no_burn_in = env._timestep
+        collapse_event = raw_event and env._timestep > self.burn_in
         if collapse_event and self._collapsed_at is None:
             self._collapsed_at = env._timestep
         self._was_collapsed_last_row = collapsed_now
@@ -324,6 +347,23 @@ class KPILogger:
         return row
 
     # -------------------------------------------------------------- writers
+
+    def write_agent_wealth(self, path: str | Path) -> Path | None:
+        """Per-agent wealth snapshots (every ``wealth_log_interval`` steps)."""
+        if not self._agent_wealth_rows:
+            return None
+        path = Path(path)
+        pd.DataFrame(self._agent_wealth_rows).to_csv(path, index=False)
+        return path
+
+    def audit_record(self) -> dict[str, Any]:
+        """Settings and collapse timing with and without burn-in."""
+        return {
+            "indicator_scope": getattr(self.env, "indicator_scope", "all"),
+            "burn_in": self.burn_in,
+            "collapse_timestep": self._collapsed_at,
+            "collapse_timestep_without_burn_in": self._collapsed_at_no_burn_in,
+        }
 
     def write_csv(self, path: str | Path) -> Path:
         """Apply deferred rolling/indexing passes, then write the locked CSV."""
