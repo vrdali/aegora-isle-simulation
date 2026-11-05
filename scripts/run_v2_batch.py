@@ -44,7 +44,8 @@ def main() -> int:
     ap.add_argument("--n_jobs", type=int, default=4)
     ap.add_argument("--indicator_scope", default="economic",
                     choices=["all", "economic", "economic_ex_trader"])
-    ap.add_argument("--burn_in", type=int, default=10)
+    ap.add_argument("--burn_in", type=int, default=50,
+                    help="Equals the 50-step KPI rolling window; the no-burn-in timing is also saved.")
     ap.add_argument("--wealth_log_interval", type=int, default=100)
     ap.add_argument("--governance", default="all")
     ap.add_argument("--scenario", default="all")
