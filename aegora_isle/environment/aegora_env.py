@@ -97,11 +97,16 @@ class AegoraEnv(AECEnv):
         seed: int = 0,
         max_timesteps: int = 10_000,
         indicator_scope: str = "all",
+        inert_governor_slots: bool = False,
     ) -> None:
         super().__init__()
         if indicator_scope not in INDICATOR_SCOPES:
             raise ValueError(f"indicator_scope must be one of {INDICATOR_SCOPES}")
         self.indicator_scope = indicator_scope
+        # Matched-composition control: under G1, build the same population as
+        # G2/G3 (12/13/13 economic agents plus 12 inert Governor slots) so the
+        # three regimes differ only in governance, not in who is in the economy.
+        self.inert_governor_slots = bool(inert_governor_slots)
         if n_agents < 4:
             raise ValueError("n_agents must be >= 4")
         self.n_agents = int(n_agents)
@@ -171,7 +176,7 @@ class AegoraEnv(AECEnv):
         """Per DECISIONS.md rounding. With Governor: 12/13/13/12 at n=50."""
         n = self.n_agents
         regime = getattr(self.governance_module, "regime", "G1")
-        if regime == "G1":
+        if regime == "G1" and not self.inert_governor_slots:
             # 17/17/16 at n=50 → proportions roughly 1/3 each, last absorbs remainder.
             base = n // 3
             rem = n - 3 * base
