@@ -47,6 +47,8 @@ def main() -> int:
     ap.add_argument("--burn_in", type=int, default=50,
                     help="Equals the 50-step KPI rolling window; the no-burn-in timing is also saved.")
     ap.add_argument("--wealth_log_interval", type=int, default=100)
+    ap.add_argument("--g1_placeholders", action="store_true",
+                    help="G1 uses the G2/G3 population (12 inert Governor slots).")
     ap.add_argument("--governance", default="all")
     ap.add_argument("--scenario", default="all")
     args = ap.parse_args()
@@ -71,7 +73,7 @@ def main() -> int:
         "--n_reps", str(args.n_reps), "--output_dir", str(out), "--n_jobs", str(args.n_jobs),
         "--indicator_scope", args.indicator_scope, "--burn_in", str(args.burn_in),
         "--wealth_log_interval", str(args.wealth_log_interval),
-    ])
+    ] + (["--g1_placeholders"] if args.g1_placeholders else []))
     if code != 0:
         return code
 

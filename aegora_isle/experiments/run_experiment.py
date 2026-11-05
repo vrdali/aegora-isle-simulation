@@ -216,6 +216,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--n_jobs", type=int, default=1)
     parser.add_argument("--indicator_scope", choices=["all", "economic", "economic_ex_trader"],
                         default="all", help="Agents included in population-level indicators.")
+    parser.add_argument("--g1_placeholders", action="store_true",
+                        help="G1 runs use the G2/G3 population (12 inert Governor slots).")
     parser.add_argument("--burn_in", type=int, default=0,
                         help="Collapse events are ignored up to and including this timestep.")
     parser.add_argument("--wealth_log_interval", type=int, default=0,
@@ -272,6 +274,7 @@ def run_single_cell(
     indicator_scope: str = "all",
     burn_in: int = 0,
     wealth_log_interval: int = 0,
+    g1_placeholders: bool = False,
 ) -> dict[str, Any]:
     """Runs exactly one (governance, scenario, replication) cell end-to-end.
 
@@ -349,6 +352,7 @@ def run_single_cell(
             seed=seed,
             max_timesteps=max_timesteps,
             indicator_scope=indicator_scope,
+            inert_governor_slots=bool(g1_placeholders and governance == "G1"),
         )
         env.reset()
         for aid in env.agents:
@@ -784,6 +788,7 @@ def main(argv: list[str] | None = None) -> int:
         indicator_scope=args.indicator_scope,
         burn_in=args.burn_in,
         wealth_log_interval=args.wealth_log_interval,
+        g1_placeholders=args.g1_placeholders,
     )
 
     print(f"Running {total} replication(s), n_jobs={args.n_jobs}, round cap={DEFAULT_ROUND_CAP}")
