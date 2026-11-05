@@ -1475,3 +1475,31 @@ the mtimes cannot be attributed to any visible operation. Both truncations
 share a shape -- a full-dataset file reduced to its G1 subset -- which is
 consistent with something writing a single-condition batch's summaries over
 the full ones, but that is inference, not evidence.
+
+## 2026-11-05 — Review-driven corrections (v2 code; v1 dataset unchanged)
+
+Made in response to the HCIS peer review. None of these edits alter the
+v1 dataset, which stays as released and is labelled as generated before
+these corrections.
+
+- **SAC seed path.** The G3 SAC model is now built with a seed derived from
+  the run-seeded generator (and its action space is seeded explicitly).
+  Before this, warm-up actions, torch weights and replay sampling were
+  unseeded: two G3 runs from the same seed produced different CSVs. The
+  seed is recorded as `sac_seed` in the governor state and in the audit
+  sidecar. `tests/test_g3_determinism.py` covers warm-up and the first
+  learning steps. v1 G3 runs cannot be regenerated exactly.
+- **Indicator scope.** `AegoraEnv(indicator_scope=...)`: `all` (v1
+  behaviour, default), `economic` (Governor slots excluded from the Gini,
+  welfare proxy, collapse flag and from the G3 observation/equality
+  reward) or `economic_ex_trader`. CLI: `--indicator_scope`.
+- **Burn-in.** `--burn_in N` suppresses collapse events up to timestep N;
+  the first event without burn-in is kept in `<run>_audit.json`
+  (`collapse_timestep_without_burn_in`) so both versions can be reported.
+- **Per-agent wealth.** `--wealth_log_interval N` writes `<run>_wealth.csv`
+  (timestep, agent id/type, wealth, whether in indicator scope).
+- **Retry seeds.** `RETRY_SEED_DELTA` 1000 → 100000. At 1000, replacement
+  seeds equalled the next regime's base seeds (356 unique seeds in 360
+  runs). `tests/test_seed_scheme.py` asserts uniqueness over all rounds.
+- **Verifier** (branch `fix/verifier-required-records`): required records
+  are mandatory; checks report PASS / FAIL / NOT RUN.

@@ -67,6 +67,9 @@ MAX_PRODUCE_AMOUNT: float = 3.0
 EXTRACTOR_SPEND_FRACTION: float = 0.15
 
 
+INDICATOR_SCOPES = ("all", "economic", "economic_ex_trader")
+
+
 class AegoraEnv(AECEnv):
     """PettingZoo AECEnv for the Aegora Isle synthetic economy.
 
@@ -93,8 +96,12 @@ class AegoraEnv(AECEnv):
         scenario_params: Optional[dict[str, Any]] = None,
         seed: int = 0,
         max_timesteps: int = 10_000,
+        indicator_scope: str = "all",
     ) -> None:
         super().__init__()
+        if indicator_scope not in INDICATOR_SCOPES:
+            raise ValueError(f"indicator_scope must be one of {INDICATOR_SCOPES}")
+        self.indicator_scope = indicator_scope
         if n_agents < 4:
             raise ValueError("n_agents must be >= 4")
         self.n_agents = int(n_agents)
@@ -280,7 +287,7 @@ class AegoraEnv(AECEnv):
         # KPI bookkeeping reset. Initial mean wealth is captured once here
         # as the baseline for resource_access / subsistence-collapse checks.
         prices0 = {item: self.market.get_price(item) for item in self.market.base_prices}
-        wealths0 = [a.wealth(prices0) for a in self._agents_by_id.values()]
+        wealths0 = self.indicator_wealths(prices0)
         self._initial_mean_wealth = float(np.mean(wealths0)) if wealths0 else 0.0
         self._stock_history = [self.resource_pool.stock]
         self._cycle_production_value = 0.0
@@ -601,6 +608,28 @@ class AegoraEnv(AECEnv):
 
     # --------------------------------------------------------------------- kpi
 
+    def indicator_wealths(self, prices: dict[str, float]) -> list[float]:
+        """Wealth values that population-level indicators are computed over.
+
+        ``indicator_scope``: ``"all"`` keeps every agent, including the
+        inactive Governor slots (the original v1 behaviour); ``"economic"``
+        drops Governor slots; ``"economic_ex_trader"`` also drops Traders.
+        Used by the live KPIs (so the G3 Governor's observation and
+        equality reward are computed over the same population) and by the
+        KPI logger.
+        """
+        return [a.wealth(prices) for aid, a in self._agents_by_id.items()
+                if self._in_indicator_scope(aid)]
+
+    def _in_indicator_scope(self, agent_id: str) -> bool:
+        if self.indicator_scope == "all":
+            return True
+        if agent_id.startswith("governor"):
+            return False
+        if self.indicator_scope == "economic_ex_trader" and agent_id.startswith("trader"):
+            return False
+        return True
+
     def _update_live_kpis(self) -> None:
         """Recompute the live KPI cache after one cycle completes.
 
@@ -613,7 +642,7 @@ class AegoraEnv(AECEnv):
         """
         assert self.resource_pool is not None and self.market is not None
         prices = {item: self.market.get_price(item) for item in self.market.base_prices}
-        wealths = [a.wealth(prices) for a in self._agents_by_id.values()]
+        wealths = self.indicator_wealths(prices)
 
         gini = _kpi.compute_gini_raw(wealths)
 

@@ -123,8 +123,10 @@ class AdaptiveRLGovernor:
             fires (mirrors G2's ``sanction_magnitude``).
         rng: Externally-seeded ``numpy.random.Generator`` (CLAUDE.md
             seeding contract). Used for the warm-up random-action phase
-            and the sanction roll — SAC's own internal torch RNG is a
-            separate concern SB3 manages itself.
+            and the sanction roll. SAC's own seed (torch weights, replay
+            sampling and the SAC action space used for warm-up draws) is
+            derived from this generator in ``_build_model``, so every
+            stochastic source follows the recorded run seed.
         reward_normalisation: ``"running"`` (Welford per-component) or
             ``"none"``.
         reward_clip: Clip bound for normalised components.
@@ -197,6 +199,7 @@ class AdaptiveRLGovernor:
         self._step_count: int = 0
         self._sanction_count: int = 0
         self._redistribution_count: int = 0
+        self.sac_seed: int | None = None  # set when the SAC model is built
 
     # ----------------------------------------------------- composite reward
 
@@ -349,7 +352,18 @@ class AdaptiveRLGovernor:
 
         sac_action_space = spaces.Box(low=0.0, high=1.0, shape=(SAC_ACTION_DIM,), dtype=np.float32)
         dummy_env = _DummyGovernorEnv(governor_observation_space, sac_action_space)
-        self.model = SAC(policy="MlpPolicy", env=dummy_env, verbose=0, **self._sac_kwargs)
+        # Seed path (review finding, 2026-11): without an explicit seed SB3
+        # draws torch weights, replay-buffer sampling and the SAC action
+        # space's warm-up samples from unseeded state. The seed is derived
+        # from the run-seeded generator and recorded for the sidecar.
+        sac_kwargs = dict(self._sac_kwargs)
+        if "seed" in sac_kwargs and sac_kwargs["seed"] is not None:
+            self.sac_seed = int(sac_kwargs.pop("seed"))
+        else:
+            sac_kwargs.pop("seed", None)
+            self.sac_seed = int(self.rng.integers(0, 2**31 - 1))
+        self.model = SAC(policy="MlpPolicy", env=dummy_env, verbose=0, seed=self.sac_seed, **sac_kwargs)
+        self.model.action_space.seed(self.sac_seed)  # explicit: warm-up draws
         # .learn() normally configures this; since we bypass it entirely
         # (manual replay-buffer + train() calls), train()'s internal
         # self.logger.record(...) calls need a logger to exist at all.
@@ -398,4 +412,5 @@ class AdaptiveRLGovernor:
             "sanction_count": self._sanction_count,
             "redistribution_count": self._redistribution_count,
             "model_built": self.model is not None,
+            "sac_seed": self.sac_seed,
         }
