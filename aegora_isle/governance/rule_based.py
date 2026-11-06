@@ -66,6 +66,7 @@ class RuleBasedGovernor:
         redistribution_period: int,
         redistribution_rate: float,
         rng: np.random.Generator,
+        redistribution_donors: tuple[str, ...] = ("producer", "trader"),
         max_extract_amount: float = MAX_EXTRACT_AMOUNT,
     ) -> None:
         if not isinstance(rng, np.random.Generator):
@@ -84,6 +85,7 @@ class RuleBasedGovernor:
         self.sanction_magnitude = float(sanction_magnitude)
         self.redistribution_period = int(redistribution_period)
         self.redistribution_rate = float(redistribution_rate)
+        self.redistribution_donors = tuple(redistribution_donors)
         self.rng = rng
         self.max_extract_amount = float(max_extract_amount)
 
@@ -137,7 +139,7 @@ class RuleBasedGovernor:
         if not agents:
             return
 
-        donors = [a for aid, a in agents.items() if aid.startswith(("producer", "trader"))]
+        donors = [a for aid, a in agents.items() if aid.startswith(self.redistribution_donors)]
         recipients = [a for aid, a in agents.items() if aid.startswith("extractor")]
         if not donors or not recipients:
             return

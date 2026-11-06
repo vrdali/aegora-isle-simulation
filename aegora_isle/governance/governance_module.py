@@ -76,12 +76,15 @@ class GovernanceModule:
             own Generator).
     """
 
-    def __init__(self, config_path: str, rng: np.random.Generator) -> None:
+    def __init__(self, config_path: str, rng: np.random.Generator,
+                 config_overrides: dict[str, Any] | None = None) -> None:
         if not isinstance(rng, np.random.Generator):
             raise TypeError("GovernanceModule requires a numpy.random.Generator")
 
         with open(config_path) as f:
             cfg = yaml.safe_load(f)
+        if cfg and config_overrides:
+            cfg = {**cfg, **config_overrides}
         if not cfg or "regime" not in cfg:
             raise ValueError(f"{config_path} missing required 'regime' key")
 
@@ -113,6 +116,7 @@ class GovernanceModule:
                 redistribution_period=cfg["redistribution_period"],
                 redistribution_rate=cfg["redistribution_rate"],
                 rng=rng,
+                redistribution_donors=tuple(cfg.get("redistribution_donors", ("producer", "trader"))),
             )
 
         if regime == "G3":
@@ -129,6 +133,7 @@ class GovernanceModule:
                 rng=rng,
                 reward_normalisation=cfg.get("reward_normalisation", "running"),
                 reward_clip=cfg.get("reward_clip", 5.0),
+                redistribution_donors=tuple(cfg.get("redistribution_donors", ("producer", "trader"))),
             )
 
         raise AssertionError(f"unreachable: regime {regime!r}")  # validated in __init__
