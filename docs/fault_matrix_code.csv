@@ -1,0 +1,5 @@
+fault,detected_by_repeat_run,hash_a,hash_b
+"baseline (same code, same seed)",yes,5137d2e655fb,5137d2e655fb
+global RNG used inside the run,"NO (masked: SB3 seeds the global NumPy RNG from the run seed, so the fault does not change output; not a reproducibility failure in this code path)",b42252e71316,b42252e71316
+component seeded from wall clock,yes,cfee028237d5,6b9e24d07932
+unrecorded configuration change,NO by repeat-run; yes by sidecar/parameter consistency check (dataset-level fault 7),-,-
