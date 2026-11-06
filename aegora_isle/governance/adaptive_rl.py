@@ -154,6 +154,7 @@ class AdaptiveRLGovernor:
         rng: np.random.Generator,
         reward_normalisation: str = "running",
         reward_clip: float = 5.0,
+        redistribution_donors: tuple[str, ...] = ("producer", "trader"),
         max_extract_amount: float = MAX_EXTRACT_AMOUNT,
     ) -> None:
         if not isinstance(rng, np.random.Generator):
@@ -198,6 +199,7 @@ class AdaptiveRLGovernor:
         self._prev_sac_action: np.ndarray | None = None
         self._step_count: int = 0
         self._sanction_count: int = 0
+        self.redistribution_donors = tuple(redistribution_donors)
         self._redistribution_count: int = 0
         self.sac_seed: int | None = None  # set when the SAC model is built
 
@@ -376,7 +378,7 @@ class AdaptiveRLGovernor:
         agents = env_state.get("agents_by_id")
         if not agents:
             return
-        donors = [a for aid, a in agents.items() if aid.startswith(("producer", "trader"))]
+        donors = [a for aid, a in agents.items() if aid.startswith(self.redistribution_donors)]
         recipients = [a for aid, a in agents.items() if aid.startswith("extractor")]
         if not donors or not recipients:
             return

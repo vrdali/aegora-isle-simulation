@@ -216,6 +216,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--n_jobs", type=int, default=1)
     parser.add_argument("--indicator_scope", choices=["all", "economic", "economic_ex_trader"],
                         default="all", help="Agents included in population-level indicators.")
+    parser.add_argument("--redistribution_donors", default=None,
+                        help="Ablation: comma list of donor kinds (e.g. producer) or 'none'; default producer,trader")
     parser.add_argument("--g1_placeholders", action="store_true",
                         help="G1 runs use the G2/G3 population (12 inert Governor slots).")
     parser.add_argument("--burn_in", type=int, default=0,
@@ -275,6 +277,7 @@ def run_single_cell(
     burn_in: int = 0,
     wealth_log_interval: int = 0,
     g1_placeholders: bool = False,
+    redistribution_donors: str | None = None,
 ) -> dict[str, Any]:
     """Runs exactly one (governance, scenario, replication) cell end-to-end.
 
@@ -344,7 +347,12 @@ def run_single_cell(
         # Governance RNG seeded from this run's own seed -- not a shared
         # fixed constant -- so governance stochasticity is genuinely
         # distinct per replication.
-        gm = GovernanceModule(str(config_path), np.random.default_rng(seed))
+        overrides = None
+        if redistribution_donors is not None:
+            # "none" disables the levy (empty donor set); else comma list of agent kinds
+            donors = () if redistribution_donors == "none" else tuple(redistribution_donors.split(","))
+            overrides = {"redistribution_donors": donors}
+        gm = GovernanceModule(str(config_path), np.random.default_rng(seed), overrides)
         env = AegoraEnv(
             n_agents=n_agents,
             governance_module=gm,
@@ -421,6 +429,7 @@ def run_single_cell(
         # without burn-in, SAC seed. Separate file so the locked JSON schema
         # is unchanged.
         audit = {**logger.audit_record(), "run_id": run_id, "random_seed": seed,
+                 "redistribution_donors": redistribution_donors,
                  "sac_seed": gm.state_dict().get("sac_seed") if hasattr(gm, "state_dict") else None}
         csv_path.with_name(csv_path.stem + "_audit.json").write_text(json.dumps(audit, indent=2))
         logger.write_agent_wealth(csv_path.with_name(csv_path.stem + "_wealth.csv"))
@@ -789,6 +798,7 @@ def main(argv: list[str] | None = None) -> int:
         burn_in=args.burn_in,
         wealth_log_interval=args.wealth_log_interval,
         g1_placeholders=args.g1_placeholders,
+        redistribution_donors=args.redistribution_donors,
     )
 
     print(f"Running {total} replication(s), n_jobs={args.n_jobs}, round cap={DEFAULT_ROUND_CAP}")
