@@ -53,7 +53,7 @@ Verify:
 
 ```bash
 uv run python -c "import pettingzoo, stable_baselines3, streamlit; print('OK')"
-uv run pytest tests/ -q          # 325 tests
+uv run pytest tests/ -q          # 361 tests
 ```
 
 The install pulls PyTorch and Stable-Baselines3, so expect a few minutes.
@@ -233,7 +233,7 @@ scripts/
   package_dataset.py    # archive + manifest + sample
   verify_dataset.py     # checksum a downloaded dataset
   md_to_pdf.py          # client-note rendering
-tests/                  # 325 tests
+tests/                  # 361 tests
 ```
 
 Directory layout is fixed by spec §5; the analysis scripts depend on it.
