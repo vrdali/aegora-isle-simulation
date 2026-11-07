@@ -49,6 +49,10 @@ def main() -> int:
     ap.add_argument("--wealth_log_interval", type=int, default=100)
     ap.add_argument("--redistribution_donors", default=None,
                     help="Ablation: donor kinds (comma list) or 'none'")
+    ap.add_argument("--redistribution_period", type=int, default=None,
+                    help="Matched-frequency G2: levy every N steps")
+    ap.add_argument("--redistribution_rate", type=float, default=None,
+                    help="Matched-frequency G2: fraction levied per application")
     ap.add_argument("--g1_placeholders", action="store_true",
                     help="G1 uses the G2/G3 population (12 inert Governor slots).")
     ap.add_argument("--governance", default="all")
@@ -76,7 +80,9 @@ def main() -> int:
         "--indicator_scope", args.indicator_scope, "--burn_in", str(args.burn_in),
         "--wealth_log_interval", str(args.wealth_log_interval),
     ] + (["--g1_placeholders"] if args.g1_placeholders else [])
-       + (["--redistribution_donors", args.redistribution_donors] if args.redistribution_donors else []))
+       + (["--redistribution_donors", args.redistribution_donors] if args.redistribution_donors else [])
+       + (["--redistribution_period", str(args.redistribution_period)] if args.redistribution_period else [])
+       + (["--redistribution_rate", str(args.redistribution_rate)] if args.redistribution_rate is not None else []))
     if code != 0:
         return code
 
