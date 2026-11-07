@@ -2,7 +2,7 @@
 
 This file records which code produced which batch, the SHA-256 of each batch's
 `dataset_manifest.csv`, and how each batch was verified. It was written on
-7 November 2026, after all seven batches were complete.
+7 November 2026, after batches A to G were complete; batch H was added the same day.
 
 ## Batches
 
@@ -15,11 +15,12 @@ This file records which code produced which batch, the SHA-256 of each batch's
 | E_G3_traders_exempt | G3, Traders exempt from the levy | 120 | bae973d | 9c32ffd9e99f7498ec16ae7ae6fd53b8d4509ca3769505e98cb2ecc8a3456465 |
 | F_G2_no_levy | G2, no redistribution levy | 120 | bae973d | e956e525abcee7fefbfddf4cd3ec60518d34dc7911feda114535d6fdb0c55237 |
 | G_G3_no_levy | G3, no redistribution levy | 120 | bae973d | e5762d99487a63204ce9406f0724837555a59bc0ba8814907527d0e01d698d33 |
+| H_G2_matched_frequency | G2 with the levy applied every step at 0.1053% (compounds to 10% per 100 steps), economic scope | 120 | a0a25bd (overrides `--redistribution_period 1 --redistribution_rate 0.0010530503`) | e2e220e42c4e36f1f320b4bad8097a14ac6a4ef69af1869c951ee666f26964fd |
 
 All commits are ancestors of the tagged commit. Batches A and B were exported
 without a `.git` directory, so the `git_commit` field in their
 `environment.json` shows the parent checkout; this table is the authoritative
-code identifier. Batches D to G were verified with `--expected_per_cell 30` and
+code identifier. Batches D to H were verified with `--expected_per_cell 30` and
 `--manifest_sha256` set to the value in the table (the anchor is the batch's own
 manifest hash and is not an independently published value).
 
