@@ -1503,3 +1503,24 @@ these corrections.
   runs). `tests/test_seed_scheme.py` asserts uniqueness over all rounds.
 - **Verifier** (branch `fix/verifier-required-records`): required records
   are mandatory; checks report PASS / FAIL / NOT RUN.
+
+## 2026-11-07 — v1 metadata correction and v2 provenance (v1 dataset unchanged)
+
+Recorded as a dated correction, not a rewrite: the v1 dataset and its
+original metadata stay as released.
+
+- **v1 audit-trail defects found by review.** Four replacement seeds collided
+  with other regimes' base seeds (356 unique seeds in 360 runs), and the
+  per-cell replacement roll-up (0/0/0) disagreed with the per-run attempt
+  records (1/1/2). The original attempts of the four replaced runs could not
+  be recovered. The verifier now cross-checks roll-up against attempts.
+- **v2 re-run.** Seven batches (A, B, C and four ablations D to G) were
+  generated on corrected code and verified. Commits, batch manifest hashes
+  and environment are in `docs/v2_provenance.md`.
+- **Retry rule in v2.** The runner still used the post-hoc convergence
+  threshold as its retry rule; 7 (A), 8 (B), 3 (C) and 1 (G) runs have a
+  second attempt. All retained measurements are below the pre-specified 0.01
+  threshold. Original attempts are logged but their files were overwritten.
+- **Release pointer.** Branch `release/v2.0-hcis-revision` marks the code
+  state for this revision. A git tag could not be created from the
+  environment used and has not been made.
