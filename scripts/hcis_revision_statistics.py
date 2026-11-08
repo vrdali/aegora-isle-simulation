@@ -61,3 +61,16 @@ print('Levene p = %.2e' % stats.levene(*grp.values())[1])
 print('\n== Subsistence-flag events stored in the run summaries (collapse_ts): with burn-in / without burn-in (batch A) ==')
 for g in ('G1','G2','G3'):
     x = sA[sA.gov==g]; print(g, int(x.collapse_ts.notna().sum()), '/', int(x.collapse_ts_noburn.notna().sum()), 'of', len(x))
+
+print('\n== Final-step indicators: matched-frequency G2 (batch H) vs original G2 (batch A), and G2 vs G3 (Welch 95% CI) ==')
+F = rd('final_step_H_A_G2_G3')
+H_ = F[F.batch.str.startswith('H')]; G2_ = F[(F.batch=='A_economic') & (F.gov=='G2')]; G3_ = F[(F.batch=='A_economic') & (F.gov=='G3')]
+def welch(x, y):
+    x, y = np.asarray(x), np.asarray(y); d = x.mean()-y.mean()
+    vx, vy = x.var(ddof=1)/len(x), y.var(ddof=1)/len(y); se = np.sqrt(vx+vy)
+    df = (vx+vy)**2/(vx**2/(len(x)-1)+vy**2/(len(y)-1)); t = stats.t.ppf(0.975, df)
+    return d, d-t*se, d+t*se
+for lab, (x, y) in {'H minus G2': (H_, G2_), 'G2 minus G3': (G2_, G3_)}.items():
+    for col in ('gini_final', 'hdi_final', 'gdp_final', 'stock_final'):
+        d, lo, hi = welch(x[col], y[col])
+        print(f'{lab:12s} {col:12s} {x[col].mean():9.4f} vs {y[col].mean():9.4f}  diff {d:+.4f} [{lo:+.4f}, {hi:+.4f}]')
