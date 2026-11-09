@@ -9,6 +9,15 @@ reproducible CSV runs that feed doctoral-grade statistical analysis
 This repository is the **scientific instrument** for the project; engineering
 choices are documented in `DECISIONS.md` (deviations from the spec).
 
+> **Two experiments are documented here.** The first-submission experiment (v1:
+> 360 runs, one retry at `seed + 1000`, ordinary Tukey and Cox analysis) is kept
+> for historical reproducibility. The corrected experiment for the HCIS
+> revision (v2.0: eight batches, 1,440 runs) is described in
+> [`docs/v2_provenance.md`](docs/v2_provenance.md): which commit generated which
+> batch, each batch's manifest SHA-256, and the known limitations. Its data are
+> deposited at https://doi.org/10.5281/zenodo.24039757. Where the v1 text below
+> differs from the v2 text, v2 is marked explicitly.
+
 ---
 
 ## Quick start
@@ -154,9 +163,30 @@ About a minute. Writes one CSV/JSON pair plus the summary tables.
 └── value_loss_diagnostics.csv       # secondary stability diagnostic
 ```
 
-Non-converging replications are retried once at `seed + 1000`. Both the
-original and the retry are recorded, so the exclusion is auditable rather
-than silent.
+**v1 (first submission).** Non-converging replications were retried once at
+`seed + 1000`. That scheme produced four duplicated seeds in the 360-run
+dataset.
+
+**v2 (corrected code, HCIS revision).** Non-converging replications are
+retried in rounds, and each round adds `RETRY_SEED_DELTA = 100,000` to the
+seed, which gives 360 unique seeds per 360-run batch. Every attempt is
+recorded in `attempts_summary.csv`, but the output files of an earlier
+attempt are overwritten by the retry. The v2 runner applied the recalibrated
+convergence threshold as its retry rule, whereas the pre-specified threshold
+of 0.01 remains the analytical criterion (see `docs/v2_provenance.md`).
+
+**v2 statistics.** The analysis pipeline described in Section 3 still writes
+its original Tukey and Cox tables for continuity. The statistics reported in
+the HCIS revision (Games-Howell, Wilson intervals, Kaplan-Meier and log-rank,
+final-step indicators) are reproduced by `scripts/hcis_revision_statistics.py`
+(branch `docs/hcis-revision-statistics`).
+
+**Verification.** `scripts/verify_dataset.py` ends each check in one of three
+states (PASS, FAIL, NOT RUN). Exit codes: 0 all required checks passed; 1 a
+check failed; 2 no manifest; 3 no failure found but a required check could not
+run (never a pass). Use `--expected_per_cell 30` and `--manifest_sha256` with
+the hash in `docs/v2_provenance.md`; that hash is recorded by the data
+producer and is not an independently published value.
 
 ---
 
