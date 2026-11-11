@@ -750,7 +750,7 @@ the old AND-combined logic gated behind a manual, off-by-default
 `track_kpi_convergence` flag — the real 360-run launch would have silently
 defaulted to loss-variance-only. This closes that gap.
 
-**Design constraint respected**: the project rules forbids `if governance == "G2"`
+**Design constraint respected**: the project rules forbid `if governance == "G2"`
 (or any regime-literal branching) outside `governance/`. Which convergence
 signal is authoritative is exposed as a new capability,
 `has_stochastic_extractor_sanction: bool`, on `G1Handler` (`False`),

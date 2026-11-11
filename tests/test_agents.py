@@ -93,7 +93,7 @@ def test_wealth_computation() -> None:
 
 
 def test_governance_isolation_grep() -> None:
-    """Hard the project rules rule: no governance imports inside aegora_isle/agents/.
+    """Hard project rule: no governance imports inside aegora_isle/agents/.
 
     Matches only ``from aegora_isle.governance`` / ``import aegora_isle.governance``
     at the start of a line in ``.py`` files (skipping docstrings, comments,

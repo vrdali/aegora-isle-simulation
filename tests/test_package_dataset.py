@@ -94,7 +94,7 @@ def test_manifest_skips_csv_without_sidecar(tmp_path) -> None:
 
 
 def test_sample_preserves_the_locked_column_order(tmp_path) -> None:
-    """the project rules forbids renaming or reordering the CSV schema."""
+    """the project rules forbid renaming or reordering the CSV schema."""
     _write_run(tmp_path, "G1_A_001", "G1", "A")
     write_sample(tmp_path, tmp_path / "sample", stride=25)
     out = pd.read_csv(tmp_path / "sample" / "runs" / "G1" / "G1_A_001.csv")

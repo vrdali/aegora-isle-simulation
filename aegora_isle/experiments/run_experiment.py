@@ -84,7 +84,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 CONFIGS_DIR = REPO_ROOT / "aegora_isle" / "governance" / "configs"
 SCENARIOS_PATH = Path(__file__).resolve().parent / "scenarios.yaml"
 
-# Data selection only (the project rules forbids regime branching outside
+# Data selection only (the project rules forbid regime branching outside
 # governance/; this is a lookup table, not an if/elif on regime identity).
 GOVERNANCE_ORDER: tuple[str, ...] = ("G1", "G2", "G3")
 SCENARIO_ORDER: tuple[str, ...] = ("A", "B", "C", "D")
