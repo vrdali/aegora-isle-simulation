@@ -11,7 +11,7 @@ models against one shared multi-agent env).
 G3's SAC training is entirely self-contained inside
 ``AdaptiveRLGovernor.on_step()`` (Sprint 2.5's other half), invisible to
 this driver — it only ever sees Extractor/Producer/Trader turns, under
-any regime, identically. This preserves CLAUDE.md's "no regime branching
+any regime, identically. This preserves the project rules' "no regime branching
 outside governance/" rule even in the training script.
 
 Implementation corrections from a design review against the actual

@@ -29,7 +29,7 @@ from aegora_isle.kpi.convergence import (
 
 
 def test_pre_registered_constants_locked() -> None:
-    """Drift detector: these must never change *silently* (CLAUDE.md, spec §6.3).
+    """Drift detector: these must never change *silently* (the project rules, spec §6.3).
 
     The window and minimum-epoch count remain at their pre-registered values.
     The threshold was recalibrated once, on 2026-08-10, by explicit client

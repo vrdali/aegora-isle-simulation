@@ -9,7 +9,7 @@ Run:
     uv run python -m analysis.statistical_analysis --data_dir data/
 
 Statistical conventions, per the client-confirmed plan recorded in
-CLAUDE.md:
+the project rules:
 
 * H1/H2 -- one-way ANOVA by governance with Tukey HSD post-hoc,
   **Bonferroni-corrected to alpha = .01**.
@@ -45,7 +45,7 @@ from analysis.data_loading import (
     write_epoch_summaries,
 )
 
-# Client-confirmed (CLAUDE.md "Resolved questions"): H1/H2 use Bonferroni
+# Client-confirmed (the project rules "Resolved questions"): H1/H2 use Bonferroni
 # correction to alpha = .01, not the conventional .05.
 ALPHA: float = 0.01
 

@@ -1,7 +1,7 @@
 """Governance module: the single point of regime-dependent behaviour.
 
 ``GovernanceModule`` is the **only** class other code may import from this
-package (CLAUDE.md "single entry point" rule — never import ``rule_based``
+package (the project rules "single entry point" rule — never import ``rule_based``
 or ``adaptive_rl`` directly outside this file). It loads a YAML config,
 determines the active regime, and dispatches ``on_action`` / ``on_step`` to
 the regime-specific handler:
@@ -72,7 +72,7 @@ class GovernanceModule:
             through to whichever regime handler needs randomness (G2's
             sanction rolls, G3's SAC). Required even for G1, to keep the
             constructor signature uniform across regimes — G1 simply never
-            reads it (CLAUDE.md seeding contract: no module creates its
+            reads it (the project rules seeding contract: no module creates its
             own Generator).
     """
 
@@ -103,7 +103,7 @@ class GovernanceModule:
 
         if regime == "G2":
             # Local import: governance_module.py is the ONLY file allowed
-            # to import rule_based (CLAUDE.md single-entry-point rule).
+            # to import rule_based (the project rules single-entry-point rule).
             from aegora_isle.governance.rule_based import RuleBasedGovernor
 
             return RuleBasedGovernor(
@@ -117,7 +117,7 @@ class GovernanceModule:
 
         if regime == "G3":
             # Local import: governance_module.py is the ONLY file allowed
-            # to import adaptive_rl (CLAUDE.md single-entry-point rule).
+            # to import adaptive_rl (the project rules single-entry-point rule).
             from aegora_isle.governance.adaptive_rl import AdaptiveRLGovernor
 
             return AdaptiveRLGovernor(

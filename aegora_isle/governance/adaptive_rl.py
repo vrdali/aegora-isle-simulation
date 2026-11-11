@@ -1,6 +1,6 @@
 """G3: adaptive reinforcement-learning governance via SAC.
 
-Per CLAUDE.md's single-entry-point rule, this module is imported **only**
+Per the project rules' single-entry-point rule, this module is imported **only**
 from ``governance_module.py`` (and from tests). The env never imports it
 directly.
 
@@ -121,7 +121,7 @@ class AdaptiveRLGovernor:
             output in [0,1] maps linearly into this range.
         sanction_default_magnitude: Reward delta applied when a sanction
             fires (mirrors G2's ``sanction_magnitude``).
-        rng: Externally-seeded ``numpy.random.Generator`` (CLAUDE.md
+        rng: Externally-seeded ``numpy.random.Generator`` (the project rules
             seeding contract). Used for the warm-up random-action phase
             and the sanction roll. SAC's own seed (torch weights, replay
             sampling and the SAC action space used for warm-up draws) is

@@ -8,7 +8,7 @@ Covers M2 Sprints 2.1/2.5 acceptance criteria:
   including the train_freq list->tuple conversion SB3's constructor needs.
 - Seeding contract: rng is required and must be a numpy.random.Generator.
 - Config validation: missing/unknown regime raises.
-- Single entry point (CLAUDE.md): only governance_module.py may import
+- Single entry point (the project rules): only governance_module.py may import
   rule_based or adaptive_rl anywhere in the codebase.
 """
 
@@ -164,7 +164,7 @@ def test_missing_regime_key_raises(tmp_path: pathlib.Path) -> None:
 
 
 def test_single_entry_point_for_rule_based_and_adaptive_rl() -> None:
-    """CLAUDE.md: only governance_module.py may import rule_based or
+    """the project rules: only governance_module.py may import rule_based or
     adaptive_rl. Everything else (env, agents, other governance helpers)
     must go through GovernanceModule.
     """
