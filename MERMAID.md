@@ -9,7 +9,7 @@ head at once.
 ## 1. Module dependency graph
 
 Who imports whom. Read top-to-bottom: arrows point from importer to imported.
-The hard rule from `CLAUDE.md` is the **dashed red barrier**: nothing inside
+The hard rule from the project rules is the **dashed red barrier**: nothing inside
 `aegora_isle/agents/` may import from `aegora_isle/governance/`. The env is
 the only place those two meet.
 
@@ -83,11 +83,11 @@ flowchart TD
     TGOV --> GMOD
     TRB  --> RB
 
-    BASE -. "forbidden by CLAUDE.md" .-x GMOD
-    EX   -. "forbidden by CLAUDE.md" .-x GMOD
-    PR   -. "forbidden by CLAUDE.md" .-x GMOD
-    TR   -. "forbidden by CLAUDE.md" .-x GMOD
-    GOV  -. "forbidden by CLAUDE.md" .-x GMOD
+    BASE -. "forbidden by the project rules" .-x GMOD
+    EX   -. "forbidden by the project rules" .-x GMOD
+    PR   -. "forbidden by the project rules" .-x GMOD
+    TR   -. "forbidden by the project rules" .-x GMOD
+    GOV  -. "forbidden by the project rules" .-x GMOD
     ENV  -. "forbidden: must go via GMOD" .-x RB
 
     linkStyle 27 stroke:#c0392b,stroke-width:2px,stroke-dasharray:5 4
@@ -167,7 +167,7 @@ sequenceDiagram
 
 ## 3. Seeding flow — one seed in, every stochastic decision determined
 
-`CLAUDE.md`'s "Random seeding contract" is the hard rule. The diagram shows
+the project rules' "Random seeding contract" is the hard rule. The diagram shows
 the single seed branching into per-component generators. Every box that
 generates randomness owns its **own** `Generator` instance, but all of them
 descend from the master seed.
@@ -205,7 +205,7 @@ intentionally absent** (so you don't go looking for it).
 
 | File | What it owns | First-read tip |
 |------|-------------|----------------|
-| `CLAUDE.md` | Non-negotiables every agent + human must respect (no governance leakage, AEC-only, exact CSV columns, seeded RNG). | If a test seems pedantic, the rule is here. |
+| the project rules | Non-negotiables every agent + human must respect (no governance leakage, AEC-only, exact CSV columns, seeded RNG). | If a test seems pedantic, the rule is here. |
 | `MASTER_PLAN.md` | Full milestone roadmap, sprint structure, weekly cadence. | Skim Part E for M1 context. |
 | `M1_PLAN.md` | Sprint-by-sprint M1 plan with paste-ready prompts and verification commands. | Authoritative for M1 acceptance. |
 | `PROJECT_PLAN.md` | Higher-altitude build plan (scope, risks, architecture). | Read once, then forget; M1_PLAN supersedes for details. |
@@ -242,7 +242,7 @@ irrelevant parameter fields per `action_type` are simply ignored by
 
 | File | What it owns | Debug tip / what's absent |
 |------|-------------|---------------------------|
-| `governance_module.py` | `GovernanceModule(config_path, rng)`: loads YAML, dispatches to a regime handler. `G1Handler` (identity + zero delta, no-op `on_step`) lives here inline; `RuleBasedGovernor` (G2) and `AdaptiveRLGovernor` (G3) are imported **locally inside `_build_handler`**, never at module top level. | The single entry point per CLAUDE.md: nothing outside this file may import `rule_based` or `adaptive_rl`. `AegoraEnv`'s zero-config default is `G1Handler()` directly (no YAML needed — G1 has no parameters). |
+| `governance_module.py` | `GovernanceModule(config_path, rng)`: loads YAML, dispatches to a regime handler. `G1Handler` (identity + zero delta, no-op `on_step`) lives here inline; `RuleBasedGovernor` (G2) and `AdaptiveRLGovernor` (G3) are imported **locally inside `_build_handler`**, never at module top level. | The single entry point per the project rules: nothing outside this file may import `rule_based` or `adaptive_rl`. `AegoraEnv`'s zero-config default is `G1Handler()` directly (no YAML needed — G1 has no parameters). |
 | `rule_based.py` | `RuleBasedGovernor` (G2): caps Extractor amount at `extraction_cap`, probabilistically sanctions violators, redistributes Producer/Trader cash to Extractors every `redistribution_period` env timesteps (reads `env_state["timestep"]` directly — no internal counter to drift). | `MAX_EXTRACT_AMOUNT` is **duplicated** here (not imported from `aegora_env.py`) to keep governance/ independent of environment/ — see the module dependency graph above. A drift-detector test asserts the two constants stay equal. |
 | `adaptive_rl.py` | **Not yet implemented.** G3's SAC-trained Governor lands in M2 Sprint 2.5 — see `G3_PLAN.md`. `GovernanceModule` raises `NotImplementedError` for `regime: G3` until then. | Don't go looking for this file before Sprint 2.5. |
 | `configs/g1_ungoverned.yaml` | `regime: G1`, no parameters. | Exists so `governance_condition` reads `"G1"` consistently across all three regimes' CSVs. |

@@ -1,9 +1,9 @@
 """Aegora Isle PettingZoo AEC environment.
 
-Per CLAUDE.md, **AEC API only** — this module does not export a Parallel
+Per the project rules, **AEC API only** — this module does not export a Parallel
 variant. All randomness flows from a single seed via ``np.random.default_rng``
 which is passed through to :class:`ResourcePool`, :class:`Market`, and each
-agent (CLAUDE.md "Random seeding contract").
+agent (the project rules "Random seeding contract").
 
 The env is governance-agnostic: when no ``governance_module`` is supplied,
 it defaults to :class:`G1Handler` (the ungoverned baseline). Real regime

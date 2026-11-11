@@ -9,7 +9,7 @@ a direct known-input/known-output test in ``tests/test_kpi.py``.
 
 None of these functions take a ``numpy.random.Generator``: KPI computation
 is deterministic given state, so — like :class:`G1Handler` — there is no
-randomness to seed (CLAUDE.md's seeding contract applies to stochastic
+randomness to seed (the project rules' seeding contract applies to stochastic
 components; this module has none).
 """
 
@@ -24,7 +24,7 @@ import numpy as np
 import pandas as pd
 
 
-# CSV column order — locked, exact, per CLAUDE.md. Never rename, never add.
+# CSV column order — locked, exact, per the project rules. Never rename, never add.
 CSV_COLUMNS: list[str] = [
     "timestep",
     "gini_coefficient",
