@@ -4,7 +4,7 @@ Verifies M1 Sprint 1.3 acceptance criteria:
 - Each agent's ``get_observation`` lands inside its declared ``observation_space``.
 - Each agent's ``action_space.sample()`` is consumed by ``compute_reward`` without error.
 - No file in ``aegora_isle/agents/`` imports from ``aegora_isle.governance``
-  (CLAUDE.md non-negotiable).
+  (the project rules non-negotiable).
 - All four agents accept the seeding-contract Generator.
 """
 
@@ -93,7 +93,7 @@ def test_wealth_computation() -> None:
 
 
 def test_governance_isolation_grep() -> None:
-    """Hard CLAUDE.md rule: no governance imports inside aegora_isle/agents/.
+    """Hard project rule: no governance imports inside aegora_isle/agents/.
 
     Matches only ``from aegora_isle.governance`` / ``import aegora_isle.governance``
     at the start of a line in ``.py`` files (skipping docstrings, comments,

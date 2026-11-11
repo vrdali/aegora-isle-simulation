@@ -399,7 +399,7 @@ active, real constraint from Sprint 2.2 onward.
 **Client has explicitly signed off on `3.0` as frozen** going into the
 Milestone 3 confirmatory dataset — not the spec's literal default of `5`.
 No further tuning of this value without flagging the client first
-(CLAUDE.md "ask before changing YAML configs").
+(the project rules "ask before changing YAML configs").
 
 ## Redistribution mechanism — confirmed final (client sign-off, pre-M3)
 
@@ -493,7 +493,7 @@ untouched). This was a genuine gap, not an accepted M2 simplification.
 **Fix**: new `aegora_isle/experiments/normalisation.py::RunningNormaliser`
 — a per-dimension Welford running mean/std with clipping, a vector
 generalisation of `_RunningNormaliser`'s exact algorithm. Deliberately
-**not** shared/imported between the two modules (`CLAUDE.md`'s
+**not** shared/imported between the two modules (the project rules'
 single-entry-point rule forbids `experiments/` from importing
 `governance/adaptive_rl.py`, and G3/SAC training stays out of scope for
 this fix). `ManualPPOCollector` gains one normaliser instance per agent
@@ -692,7 +692,7 @@ genuine, still-unresolved PPO training-instability issue for Extractor
 specifically under active/adaptive governance, independent of both the
 KPI-check reversal and the retry-cap redesign — flagged to the client in
 `Client_Update_M3_Confirmation_Before_Launch.md`, not fixed here (per
-CLAUDE.md: surface non-convergence, don't silently patch around it).
+the project rules: surface non-convergence, don't silently patch around it).
 
 ## Scenario C/D resource-pool recalibration — client-directed, pilot-validated (M3, pre-Sprint-3.5)
 
@@ -750,7 +750,7 @@ the old AND-combined logic gated behind a manual, off-by-default
 `track_kpi_convergence` flag — the real 360-run launch would have silently
 defaulted to loss-variance-only. This closes that gap.
 
-**Design constraint respected**: CLAUDE.md forbids `if governance == "G2"`
+**Design constraint respected**: the project rules forbid `if governance == "G2"`
 (or any regime-literal branching) outside `governance/`. Which convergence
 signal is authoritative is exposed as a new capability,
 `has_stochastic_extractor_sanction: bool`, on `G1Handler` (`False`),
@@ -821,7 +821,7 @@ documented lookup constant, `CAP_EXCEEDED_KEEP_PARTIAL: frozenset[tuple[str,
 str]]`, matching the existing `GOVERNANCE_CONFIG_FILES`-style "data
 selection, not behaviour branching" pattern already used in
 `run_experiment.py` — not a literal `if governance == "G3"` conditional
-(CLAUDE.md's regime-branching rule).
+(the project rules' regime-branching rule).
 
 **Mechanism**: `_run_convergence_rounds`'s cap-exceeded branch now
 partitions unresolved replications into exempt vs. non-exempt by
@@ -856,7 +856,7 @@ ruff clean.
 
 ## Seed-collision bug fixed before the real 360-run launch (M3, pre-Sprint-3.5)
 
-Flagged as an open question early in the project (CLAUDE.md's "Open
+Flagged as an open question early in the project (the project rules' "Open
 questions for the human": "Seed formula's replication≥10 collision quirk
 ... worth a client heads-up before the real 360-run launch, since n_reps=30
 guarantees this triggers") but never actually raised to the client, and

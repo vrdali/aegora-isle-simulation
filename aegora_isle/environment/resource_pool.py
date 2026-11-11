@@ -29,7 +29,7 @@ Magnitudes for types 2 and 3 are **not given by the spec** and are resolved
 here as documented defaults (see the module constants below).
 
 All randomness flows from an injected ``numpy.random.Generator``. The class
-never creates its own RNG (see CLAUDE.md "Random seeding contract").
+never creates its own RNG (see the project rules "Random seeding contract").
 """
 
 from __future__ import annotations
@@ -78,7 +78,7 @@ class ResourcePool:
         if not isinstance(rng, np.random.Generator):
             raise TypeError(
                 "ResourcePool requires a numpy.random.Generator; "
-                "see CLAUDE.md seeding contract."
+                "see the project rules seeding contract."
             )
         if initial_stock <= 0:
             raise ValueError("initial_stock must be > 0")

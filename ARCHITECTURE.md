@@ -799,6 +799,6 @@ pytest
 | How a regime changes behaviour | `governance/governance_module.py`, then the handler |
 | A KPI formula | `kpi/kpi_logger.py` |
 | Why something is the way it is | `DECISIONS.md` |
-| Project rules and constraints | `CLAUDE.md` |
+| Project rules and constraints | the project rules |
 | How to run any of it | `README.md` |
 | How to load the dataset | `DATA_SETUP.md` |

@@ -1,6 +1,6 @@
 """AC06 — load JSON state -> rerun -> byte-identical CSV.
 
-Per CLAUDE.md's testing rules, this test runs in CI on every push. It
+Per the project rules' testing rules, this test runs in CI on every push. It
 proves the JSON state file written by KPILogger.write_json_state contains
 enough information (random_seed + scenario_params) to exactly reproduce a
 run's CSV, not just that calling the same Python function twice gives the

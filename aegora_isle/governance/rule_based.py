@@ -1,6 +1,6 @@
 """G2: rule-based static governance.
 
-Per CLAUDE.md's single-entry-point rule, this module is imported **only**
+Per the project rules' single-entry-point rule, this module is imported **only**
 from ``governance_module.py`` (and from tests). The env never imports it
 directly.
 
@@ -42,7 +42,7 @@ class RuleBasedGovernor:
         redistribution_rate: Fraction of (Producer + Trader) cash collected
             and redistributed equally among Extractors at each
             redistribution event.
-        rng: Externally-seeded ``numpy.random.Generator`` (CLAUDE.md
+        rng: Externally-seeded ``numpy.random.Generator`` (the project rules
             seeding contract — this class never creates its own).
         max_extract_amount: Must match the env's ``MAX_EXTRACT_AMOUNT``;
             overridable for testing in isolation from the env.
