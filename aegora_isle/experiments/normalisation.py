@@ -14,7 +14,7 @@ normalisation -- confirmed gap, fixed" for the full root-cause writeup.
 clipping -- a vector generalisation of
 :class:`aegora_isle.governance.adaptive_rl._RunningNormaliser` (identical
 algorithm, identical ``n < 2`` cold-start handling). Deliberately **not**
-shared/imported between the two modules: CLAUDE.md's single-entry-point
+shared/imported between the two modules: the project rules' single-entry-point
 rule forbids ``experiments/`` from importing ``governance/adaptive_rl.py``,
 and G3's SAC training is explicitly out of scope for this fix (already
 correct, already tested).
