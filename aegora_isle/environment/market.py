@@ -66,7 +66,7 @@ class Market:
             All keys are valid trade items.
         scarcity_alpha: Non-negative scarcity sensitivity. ``0`` disables
             scarcity adjustment.
-        rng: Injected ``numpy.random.Generator`` (required by CLAUDE.md
+        rng: Injected ``numpy.random.Generator`` (required by the project rules
             seeding contract, even if the market is currently deterministic).
         timestep_fn: Optional callable returning the current env timestep,
             used to stamp trade-log entries. Defaults to ``lambda: 0``.
@@ -177,7 +177,7 @@ class Market:
         Role is read from the agent-id prefix, matching this codebase's
         existing convention (``_pick_counterparty(..., ("producer", "trader"))``
         in ``aegora_env``). This is role dispatch, not governance-regime
-        branching -- CLAUDE.md's prohibition concerns the latter.
+        branching -- the project rules' prohibition concerns the latter.
 
         With ``TRADER_SPREAD = 0.0`` this returns the mid price for every
         pairing, i.e. exactly the pre-existing single-price behaviour.
