@@ -1,6 +1,6 @@
 """Base class for all Aegora Isle agents.
 
-Per CLAUDE.md, agents are **governance-agnostic**. No imports from
+Per the project rules, agents are **governance-agnostic**. No imports from
 ``aegora_isle.governance`` are permitted in this module or any subclass.
 All regime-dependent behaviour flows through ``GovernanceModule`` externally.
 
@@ -35,7 +35,7 @@ class AgentBase(ABC):
         - ``cash``: liquid currency balance.
         - ``alive``: termination flag.
         - ``age``: steps since reset.
-        - ``rng``: injected per-agent generator (CLAUDE.md contract).
+        - ``rng``: injected per-agent generator (the project rules contract).
 
     Subclasses must define ``observation_space``, ``action_space``,
     ``get_observation``, and ``compute_reward``.

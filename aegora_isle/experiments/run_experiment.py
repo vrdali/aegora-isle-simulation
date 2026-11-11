@@ -85,7 +85,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 CONFIGS_DIR = REPO_ROOT / "aegora_isle" / "governance" / "configs"
 SCENARIOS_PATH = Path(__file__).resolve().parent / "scenarios.yaml"
 
-# Data selection only (CLAUDE.md forbids regime branching outside
+# Data selection only (the project rules forbids regime branching outside
 # governance/; this is a lookup table, not an if/elif on regime identity).
 GOVERNANCE_ORDER: tuple[str, ...] = ("G1", "G2", "G3")
 SCENARIO_ORDER: tuple[str, ...] = ("A", "B", "C", "D")
@@ -102,7 +102,7 @@ PPO_N_STEPS: int = 128
 # test's own pre-stated condition. See DECISIONS.md "PPO_N_STEPS=64 pilot
 # -- no effect, reverted."
 RETRY_SEED_DELTA: int = 100_000  # per-round seed offset -- not a convergence
-# constant (CLAUDE.md's "never re-tune 0.01/20" rule doesn't apply here),
+# constant (the project rules' "never re-tune 0.01/20" rule doesn't apply here),
 # just the replacement-round seed offset. Round k's seed_override is
 # base_seed + (k-1)*RETRY_SEED_DELTA (round 1 uses the base seed as-is).
 # Was 1000 in the v1 batch, which collided with the next governance
