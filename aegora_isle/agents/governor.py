@@ -1,6 +1,6 @@
 """Governor agent. Sets caps, redistribution, sanctions.
 
-Per DECISIONS.md and CLAUDE.md, the Governor class is **governance-agnostic**:
+Per DECISIONS.md and the project rules, the Governor class is **governance-agnostic**:
 it just emits actions. The interpretation of those actions (and any rule
 shaping) happens inside :class:`aegora_isle.governance.GovernanceModule`.
 

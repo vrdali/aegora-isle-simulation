@@ -110,7 +110,7 @@ It is a **bug fix toward the spec, not a deviation from it**:
 - Exclusion/replacement protocol — unchanged
 - Only the *measured scalar* changes, to the one the spec explicitly names
 
-This means it does **not** trip CLAUDE.md's "never re-tune the convergence
+This means it does **not** trip the project rules' "never re-tune the convergence
 threshold" rule, nor spec §12.2 ("Convergence threshold (0.01) and
 exclusion protocol must not be changed"). We would be **ending** an
 existing deviation rather than creating a new one.
